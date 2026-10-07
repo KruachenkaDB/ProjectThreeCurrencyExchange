@@ -13,6 +13,12 @@ public class Currency {
         this.sign = sign;
     }
 
+    public Currency(String code, String name, String sign) {
+        this.code = code;
+        this.name = name;
+        this.sign = sign;
+    }
+
     public int getId() {
         return id;
     }

@@ -9,6 +9,10 @@
 </h1>
 <br/>
 <a href="currency">Сurrency Servlet</a>
+<p></p>
 <a href="currency/USD">Сurrency USD</a>
+<p></p>
+<a href="currencies">Сurrencies</a>
+
 </body>
 </html>
