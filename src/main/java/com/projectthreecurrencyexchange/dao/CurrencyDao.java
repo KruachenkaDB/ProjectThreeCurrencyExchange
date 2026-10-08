@@ -2,13 +2,9 @@ package com.projectthreecurrencyexchange.dao;
 
 import com.projectthreecurrencyexchange.model.Currency;
 
-import javax.swing.plaf.nimbus.State;
-import java.math.BigDecimal;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-
-import static java.sql.Statement.RETURN_GENERATED_KEYS;
 
 public class CurrencyDao {
 

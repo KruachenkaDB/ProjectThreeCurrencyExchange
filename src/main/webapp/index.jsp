@@ -13,6 +13,10 @@
 <a href="currency/USD">Сurrency USD</a>
 <p></p>
 <a href="currencies">Сurrencies</a>
+<p></p>
+<a href="exchangeRates">ExchangeRates</a>
+<p></p>
+<a href="exchangeRate/USDRUB">ExchangeRates</a>
 
 </body>
 </html>
