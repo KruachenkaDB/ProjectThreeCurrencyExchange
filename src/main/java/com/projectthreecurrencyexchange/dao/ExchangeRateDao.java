@@ -87,7 +87,8 @@ public class ExchangeRateDao {
                     "JOIN exchangeRates as t2 " +
                     "ON t1.id = t2.baseCurrencyId " +
                     "JOIN currencies as t3 " +
-                    "ON t3.id = t2.targetCurrencyId WHERE t1.code = ? AND t3.code = ?";
+                    "ON t3.id = t2.targetCurrencyId " +
+                    "WHERE t1.code = ? AND t3.code = ?";
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setString(1, baseCode);
             preparedStatement.setString(2, targetCode);
@@ -116,5 +117,42 @@ public class ExchangeRateDao {
         }
         //проверить можно ли так
         return null;
+    }
+
+    public ExchangeRate add(ExchangeRate exchangeRate) {
+        String url = "jdbc:sqlite:C:\\Users\\krua_\\Desktop\\ProjectThreeCurrencyExchange\\identifier.sqlite";
+
+        try {
+
+            //нужен ли? проверить устарел или нет
+            Class.forName("org.sqlite.JDBC");
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+
+        //подумать над ресурсами, вставить исключения
+        try (Connection connection = DriverManager.getConnection(url)) {
+            String query = "INSERT INTO exchangeRates (baseCurrencyId, targetCurrencyId, rate) " +
+                    "VALUES (?, ?, ?) ";
+
+            PreparedStatement preparedStatement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+
+            preparedStatement.setInt(1, exchangeRate.getBaseCurrency().getId());
+            preparedStatement.setInt(2, exchangeRate.getTargetCurrency().getId());
+            preparedStatement.setBigDecimal(3, exchangeRate.getRate());
+            preparedStatement.executeUpdate();
+
+            ResultSet resultSet = preparedStatement.getGeneratedKeys();
+            if (resultSet.next()) {
+                int id = resultSet.getInt(1);
+
+                return new ExchangeRate(id, exchangeRate.getBaseCurrency(), exchangeRate.getTargetCurrency(), exchangeRate.getRate());
+            } else {
+                //тут позже разобраться
+                return null;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

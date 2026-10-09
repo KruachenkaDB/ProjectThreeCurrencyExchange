@@ -8,15 +8,13 @@
 <h1><%= "Hello World!" %>
 </h1>
 <br/>
-<a href="currency">Сurrency Servlet</a>
-<p></p>
 <a href="currency/USD">Сurrency USD</a>
 <p></p>
 <a href="currencies">Сurrencies</a>
 <p></p>
-<a href="exchangeRates">ExchangeRates</a>
+<a href="exchangeRate/USDRUB">ExchangeRate USDRUB</a>
 <p></p>
-<a href="exchangeRate/USDRUB">ExchangeRates</a>
+<a href="exchangeRates">ExchangeRates</a>
 
 </body>
 </html>
