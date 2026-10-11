@@ -73,6 +73,7 @@ public class ExchangeRateDao {
             throw new RuntimeException(e);
         }
         try (Connection connection = DriverManager.getConnection(url)) {
+            //исправить переменные с _ на baseId?
             String query = "SELECT t1.id as base_id, " +
                     "t2.id as exchange_id, " +
                     "t1.code as base_code, " +
@@ -93,6 +94,8 @@ public class ExchangeRateDao {
             preparedStatement.setString(1, baseCode);
             preparedStatement.setString(2, targetCode);
             ResultSet resultSet = preparedStatement.executeQuery();
+//            что именно проверяет resultSet.next() может сделать if
+//            если мы ищем одну запись
             while (resultSet.next()) {
                 int id = resultSet.getInt("exchange_id");
 
@@ -154,5 +157,36 @@ public class ExchangeRateDao {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public ExchangeRate update(ExchangeRate exchangeRate) {
+        String url = "jdbc:sqlite:C:\\Users\\krua_\\Desktop\\ProjectThreeCurrencyExchange\\identifier.sqlite";
+
+        try {
+            //нужен ли? проверить устарел или нет
+            Class.forName("org.sqlite.JDBC");
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+
+        //подумать над ресурсами, вставить исключения
+        try (Connection connection = DriverManager.getConnection(url)) {
+            String query = "UPDATE exchangeRates SET rate = ? WHERE baseCurrencyId = ? AND targetCurrencyId = ?";
+
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+
+            preparedStatement.setBigDecimal(1, exchangeRate.getRate());
+            preparedStatement.setInt(2, exchangeRate.getBaseCurrency().getId());
+            preparedStatement.setInt(3, exchangeRate.getTargetCurrency().getId());
+
+            int result = preparedStatement.executeUpdate();
+            if (result == 1) {
+                return new ExchangeRate(exchangeRate.getId(), exchangeRate.getBaseCurrency(), exchangeRate.getTargetCurrency(), exchangeRate.getRate());
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
     }
 }

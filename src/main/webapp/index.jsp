@@ -2,10 +2,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>JSP - Hello World</title>
+    <title>ПроектОбменВалют</title>
 </head>
 <body>
-<h1><%= "Hello World!" %>
+<h1><%= "Hello GET методы!" %>
 </h1>
 <br/>
 <a href="currency/USD">Сurrency USD</a>
@@ -15,6 +15,12 @@
 <a href="exchangeRate/USDRUB">ExchangeRate USDRUB</a>
 <p></p>
 <a href="exchangeRates">ExchangeRates</a>
+<p></p>
+<a href="exchange?from=USD&to=RUB&amount=100">ExchangeAB</a>
+<p></p>
+<a href="exchange?from=RUB&to=USD&amount=100">ExchangeBA</a>
+<p></p>
+<a href="exchange?from=EUR&to=RUB&amount=100">ExchangeUA/UB</a>
 
 </body>
 </html>

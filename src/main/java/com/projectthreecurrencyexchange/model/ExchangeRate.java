@@ -36,4 +36,8 @@ public class ExchangeRate {
     public BigDecimal getRate() {
         return rate;
     }
+
+    public void setRate(BigDecimal rate) {
+        this.rate = rate;
+    }
 }

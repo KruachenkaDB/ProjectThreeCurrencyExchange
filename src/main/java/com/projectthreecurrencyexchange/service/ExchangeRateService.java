@@ -30,4 +30,14 @@ public class ExchangeRateService {
 
         return null;
     }
+
+    public ExchangeRate updateExchangeRate(String baseCurrencyCode, String targetCurrencyCode, BigDecimal rate) {
+        ExchangeRate exchangeRate = exchangeRateDao.findByCodes(baseCurrencyCode, targetCurrencyCode);
+        if (exchangeRate != null) {
+            exchangeRate.setRate(rate);
+            return exchangeRateDao.update(exchangeRate);
+        }
+
+        return null;
+    }
 }

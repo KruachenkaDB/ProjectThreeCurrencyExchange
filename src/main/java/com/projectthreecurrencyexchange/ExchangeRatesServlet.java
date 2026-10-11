@@ -1,12 +1,10 @@
 package com.projectthreecurrencyexchange;
 
-import com.projectthreecurrencyexchange.model.Currency;
 import com.projectthreecurrencyexchange.model.ExchangeRate;
-import com.projectthreecurrencyexchange.service.CurrencyService;
 import com.projectthreecurrencyexchange.service.ExchangeRateService;
 import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
-import jakarta.servlet.ServletException;
+
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -37,6 +35,7 @@ public class ExchangeRatesServlet extends HttpServlet {
         }
     }
 
+    // доюавить склЕксепшн?
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String baseCode = request.getParameter("baseCurrencyCode");
