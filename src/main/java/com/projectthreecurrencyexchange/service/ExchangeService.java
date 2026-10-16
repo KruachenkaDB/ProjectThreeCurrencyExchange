@@ -14,7 +14,7 @@ public class ExchangeService {
 
     public Exchange calculateExchangeAmount(String from, String to, BigDecimal amount) {
         if ((amount.compareTo(BigDecimal.ZERO) <= 0)) {
-            throw new InvalidParameterException("Переменная amount должна быть больше нуля");
+            throw new InvalidParameterException("The amount variable must be greater than zero");
         }
 
         ExchangeRate exchangeRate = null;
@@ -54,7 +54,7 @@ public class ExchangeService {
             }
         } catch (NotFoundException ignored) {}
 
-        throw new NotFoundException("Курс обмена не найден");
+        throw new NotFoundException("Exchange rate not found");
     }
 //    При последующем тестировании проверить, что JSON содержит два знака после запятой, например 125.60, а не 125.6
 }

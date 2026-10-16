@@ -18,6 +18,8 @@ import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.util.List;
 
+import static jakarta.servlet.http.HttpServletResponse.SC_CREATED;
+
 @WebServlet(name = "exchangeRatesServlet", value = "/exchangeRates")
 public class ExchangeRatesServlet extends HttpServlet {
     private ExchangeRateService exchangeRateService = new ExchangeRateService();
@@ -38,19 +40,19 @@ public class ExchangeRatesServlet extends HttpServlet {
         if (baseCode == null || baseCode.isBlank() ||
                 targetCode == null || targetCode.isBlank() ||
                 rateStr == null || rateStr.isBlank() ) {
-            throw new InvalidParameterException("Обязательные поля не заполнены");
+            throw new InvalidParameterException("Required fields are not filled in");
         }
 
-        BigDecimal rate = null;
+        BigDecimal rate;
         try {
             rate = new BigDecimal(rateStr);
         } catch (NumberFormatException e) {
-            throw new InvalidParameterException("Вы ввели не числовое значение");
+            throw new InvalidParameterException("You entered a non-numeric value");
         }
 
         ExchangeRate exchangeRate = exchangeRateService.addExchangeRate(baseCode, targetCode, rate);
 
-        JsonResponseWriter.writeJsonResponse(response, exchangeRate, 201);
+        JsonResponseWriter.writeJsonResponse(response, exchangeRate, SC_CREATED);
     }
     //url для проверки в постман
     // http://localhost:8080/ProjectThreeCurrencyExchange_war_exploded/exchangeRates

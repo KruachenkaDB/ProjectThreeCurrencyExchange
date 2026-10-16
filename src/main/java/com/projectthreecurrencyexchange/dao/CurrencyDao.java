@@ -1,7 +1,6 @@
 package com.projectthreecurrencyexchange.dao;
 
 import com.projectthreecurrencyexchange.exception.DatabaseOperationException;
-import com.projectthreecurrencyexchange.exception.EntityExistsException;
 import com.projectthreecurrencyexchange.exception.NotFoundException;
 import com.projectthreecurrencyexchange.model.Currency;
 
@@ -9,15 +8,16 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CurrencyDao {
-    private static final String URL = "jdbc:sqlite:C:\\Users\\krua_\\Desktop\\ProjectThreeCurrencyExchange\\identifier.sqlite";
+import com.projectthreecurrencyexchange.config.DatabaseConfig;
 
+public class CurrencyDao {
     public CurrencyDao() {
+        //может перенсти в конфиг отже
         try {
             Class.forName("org.sqlite.JDBC");
         } catch (ClassNotFoundException e) {
             throw new DatabaseOperationException(
-                    "Java не может найти класс драйвера", e
+                    "SQLite JDBC driver not found", e
             );
         }
     }
@@ -26,7 +26,7 @@ public class CurrencyDao {
         final String query = "SELECT id, code, name, sign " +
                 "FROM currencies WHERE code = ?";
 
-        try (Connection connection = DriverManager.getConnection(URL);
+        try (Connection connection = DriverManager.getConnection(DatabaseConfig.URL);
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
 
             preparedStatement.setString(1, code);
@@ -42,10 +42,10 @@ public class CurrencyDao {
                 }
             }
         } catch (SQLException e) {
-            throw new DatabaseOperationException("Проблема подключения к БД или выполнением SQL-запроса", e);
+            throw new DatabaseOperationException("Database connection or SQL query execution error", e);
         }
 
-        throw new NotFoundException("Валюта не найдена");
+        throw new NotFoundException("Currency not found");
     }
 
     public List<Currency> findAll() {
@@ -54,7 +54,7 @@ public class CurrencyDao {
 
         List<Currency> currencyList = new ArrayList<>();
 
-        try (Connection connection = DriverManager.getConnection(URL);
+        try (Connection connection = DriverManager.getConnection(DatabaseConfig.URL);
              PreparedStatement preparedStatement = connection.prepareStatement(query);
              ResultSet resultSet = preparedStatement.executeQuery()) {
 
@@ -68,7 +68,7 @@ public class CurrencyDao {
             }
             return currencyList;
         } catch (SQLException e) {
-            throw new DatabaseOperationException("Проблема подключения к БД или выполнением SQL-запроса", e);
+            throw new DatabaseOperationException("Database connection or SQL query execution error", e);
         }
     }
 
@@ -76,7 +76,7 @@ public class CurrencyDao {
         final String query = "INSERT INTO currencies (code, name, sign) " +
                 "VALUES (?, ?, ?)";
 
-        try (Connection connection = DriverManager.getConnection(URL);
+        try (Connection connection = DriverManager.getConnection(DatabaseConfig.URL);
              PreparedStatement preparedStatement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
 
             preparedStatement.setString(1, currency.getCode());
@@ -91,21 +91,21 @@ public class CurrencyDao {
                     return new Currency(id, currency.getCode(), currency.getName(), currency.getSign());
                 }
             } catch (SQLException e) {
-                throw new DatabaseOperationException("Не удалось получить ID созданной валюты", e);
+                throw new DatabaseOperationException("Failed to get the ID of the created currency", e);
             }
 
         } catch (SQLException e) {
-            throw new DatabaseOperationException("Проблема подключения к БД или выполнением SQL-запроса", e);
+            throw new DatabaseOperationException("Database connection or SQL query execution error", e);
         }
 
-        throw new DatabaseOperationException("Проблема подключения к БД или выполнением SQL-запроса");
+        throw new DatabaseOperationException("Database connection or SQL query execution error");
     }
 
     public boolean existsByCode(String code) {
         final String query = "SELECT 1 " +
                 "FROM currencies WHERE code = ?";
 
-        try (Connection connection = DriverManager.getConnection(URL);
+        try (Connection connection = DriverManager.getConnection(DatabaseConfig.URL);
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
 
             preparedStatement.setString(1, code);
@@ -116,7 +116,7 @@ public class CurrencyDao {
                 }
             }
         } catch (SQLException e) {
-            throw new DatabaseOperationException("Проблема подключения к БД или выполнением SQL-запроса", e);
+            throw new DatabaseOperationException("Database connection or SQL query execution error", e);
         }
         return false;
     }

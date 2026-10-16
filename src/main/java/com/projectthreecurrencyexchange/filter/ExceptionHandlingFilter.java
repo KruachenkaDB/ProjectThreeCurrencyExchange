@@ -14,6 +14,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import static jakarta.servlet.http.HttpServletResponse.*;
+
 @WebFilter(value = {
        "/currencies", "/currency/*", "/exchangeRate/*", "/exchangeRates", "/exchange"
 })
@@ -25,16 +27,16 @@ public class ExceptionHandlingFilter implements Filter {
             filterChain.doFilter(servletRequest, servletResponse);
         } catch (InvalidParameterException e) {
             HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
-            writeResponse(httpResponse, 400, e);
+            writeResponse(httpResponse, SC_BAD_REQUEST, e);
         } catch (EntityExistsException e) {
             HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
-            writeResponse(httpResponse, 409, e);
+            writeResponse(httpResponse, SC_CONFLICT, e);
         } catch (NotFoundException e) {
             HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
-            writeResponse(httpResponse, 404, e);
+            writeResponse(httpResponse, SC_NOT_FOUND, e);
         } catch (DatabaseOperationException e) {
             HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
-            writeResponse(httpResponse, 500, e);
+            writeResponse(httpResponse, SC_INTERNAL_SERVER_ERROR, e);
         }
     }
 //    ошибки сериализации как внутренней ошибки сервера со статусом 500
@@ -47,7 +49,7 @@ public class ExceptionHandlingFilter implements Filter {
             PrintWriter out = httpResponse.getWriter();
             out.println(jsonb.toJson(new ErrorResponse(e.getMessage())));
         } catch (Exception ex) {
-            throw new ServletException("Не удалось сформировать JSON-ответ", ex);
+            throw new ServletException("Failed to build JSON response", ex);
         }
     }
 }

@@ -22,7 +22,7 @@ public class ExchangeRateService {
 
     public ExchangeRate addExchangeRate(String baseCurrencyCode, String targetCurrencyCode, BigDecimal rate) {
         if ((rate.compareTo(BigDecimal.ZERO) <= 0)) {
-            throw new InvalidParameterException("Переменная rate должна быть больше нуля");
+            throw new InvalidParameterException("The rate variable must be greater than zero");
         }
 
         Currency baseCurrency = currencyDao.findByCode(baseCurrencyCode);
@@ -33,7 +33,7 @@ public class ExchangeRateService {
 
     public ExchangeRate updateExchangeRate(String baseCurrencyCode, String targetCurrencyCode, BigDecimal rate) {
         if ((rate.compareTo(BigDecimal.ZERO) <= 0)) {
-            throw new InvalidParameterException("Переменная rate должна быть больше нуля");
+            throw new InvalidParameterException("The rate variable must be greater than zero");
         }
 
         ExchangeRate exchangeRate = exchangeRateDao.findByCodes(baseCurrencyCode, targetCurrencyCode);

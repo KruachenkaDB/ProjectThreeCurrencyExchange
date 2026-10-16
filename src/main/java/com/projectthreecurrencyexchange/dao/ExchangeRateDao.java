@@ -1,5 +1,6 @@
 package com.projectthreecurrencyexchange.dao;
 
+import com.projectthreecurrencyexchange.config.DatabaseConfig;
 import com.projectthreecurrencyexchange.exception.DatabaseOperationException;
 import com.projectthreecurrencyexchange.exception.NotFoundException;
 import com.projectthreecurrencyexchange.model.Currency;
@@ -11,14 +12,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ExchangeRateDao {
-    private static final String URL = "jdbc:sqlite:C:\\Users\\krua_\\Desktop\\ProjectThreeCurrencyExchange\\identifier.sqlite";
-
     public ExchangeRateDao() {
         try {
             Class.forName("org.sqlite.JDBC");
         } catch (ClassNotFoundException e) {
             throw new DatabaseOperationException(
-                    "Java не может найти класс драйвера", e
+                    "SQLite JDBC driver not found", e
             );
         }
     }
@@ -42,7 +41,7 @@ public class ExchangeRateDao {
 
         List<ExchangeRate> exchangeRateList = new ArrayList<>();
 
-        try (Connection connection = DriverManager.getConnection(URL);
+        try (Connection connection = DriverManager.getConnection(DatabaseConfig.URL);
              PreparedStatement preparedStatement = connection.prepareStatement(query);
              ResultSet resultSet = preparedStatement.executeQuery()) {
 
@@ -67,7 +66,7 @@ public class ExchangeRateDao {
             }
             return exchangeRateList;
         } catch (SQLException e) {
-            throw new DatabaseOperationException("Проблема подключения к БД или выполнением SQL-запроса", e);
+            throw new DatabaseOperationException("Database connection or SQL query execution error", e);
         }
     }
 
@@ -89,7 +88,7 @@ public class ExchangeRateDao {
                 "ON t3.id = t2.targetCurrencyId " +
                 "WHERE t1.code = ? AND t3.code = ?";
 
-        try (Connection connection = DriverManager.getConnection(URL);
+        try (Connection connection = DriverManager.getConnection(DatabaseConfig.URL);
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
 
             preparedStatement.setString(1, baseCode);
@@ -117,16 +116,16 @@ public class ExchangeRateDao {
                 }
             }
         } catch (SQLException e) {
-            throw new DatabaseOperationException("Проблема подключения к БД или выполнением SQL-запроса", e);
+            throw new DatabaseOperationException("Database connection or SQL query execution error", e);
         }
-        throw new NotFoundException("Курс не найден");
+        throw new NotFoundException("Exchange rate not found");
     }
 
     public ExchangeRate add(ExchangeRate exchangeRate) {
         final String query = "INSERT INTO exchangeRates (baseCurrencyId, targetCurrencyId, rate) " +
                 "VALUES (?, ?, ?) ";
 
-        try (Connection connection = DriverManager.getConnection(URL);
+        try (Connection connection = DriverManager.getConnection(DatabaseConfig.URL);
              PreparedStatement preparedStatement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)){
 
             preparedStatement.setInt(1, exchangeRate.getBaseCurrency().getId());
@@ -140,11 +139,11 @@ public class ExchangeRateDao {
 
                     return new ExchangeRate(id, exchangeRate.getBaseCurrency(), exchangeRate.getTargetCurrency(), exchangeRate.getRate());
                 } else {
-                    throw new DatabaseOperationException("Не удалось получить ID созданного курса");
+                    throw new DatabaseOperationException("Failed to get the ID of the created currency");
                 }
             }
         } catch (SQLException e) {
-            throw new DatabaseOperationException("Проблема подключения к БД или выполнением SQL-запроса", e);
+            throw new DatabaseOperationException("Database connection or SQL query execution error", e);
         }
     }
 
@@ -153,7 +152,7 @@ public class ExchangeRateDao {
                 "SET rate = ? WHERE baseCurrencyId = ? " +
                 "AND targetCurrencyId = ?";
 
-        try (Connection connection = DriverManager.getConnection(URL);
+        try (Connection connection = DriverManager.getConnection(DatabaseConfig.URL);
             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
 
             preparedStatement.setBigDecimal(1, exchangeRate.getRate());
@@ -166,9 +165,9 @@ public class ExchangeRateDao {
             }
 
         } catch (SQLException e) {
-            throw new DatabaseOperationException("Проблема подключения к БД или выполнением SQL-запроса", e);
+            throw new DatabaseOperationException("Database connection or SQL query execution error", e);
         }
 
-        throw new NotFoundException("Валютная пара отсутствует в базе данных");
+        throw new NotFoundException("Currency pair is missing from the database");
     }
 }

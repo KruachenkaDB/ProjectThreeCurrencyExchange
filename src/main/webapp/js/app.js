@@ -1,6 +1,6 @@
 $(document).ready(function() {
-	const host = "http://localhost:8080/ProjectThreeCurrencyExchange_war_exploded"
-
+//	const host = "http://localhost:8080/ProjectThreeCurrencyExchange_war_exploded"
+    const host = "/ProjectThreeCurrencyExchange_war_exploded"
     // Fetch the list of currencies and populate the select element
     function requestCurrencies() {
         $.ajax({

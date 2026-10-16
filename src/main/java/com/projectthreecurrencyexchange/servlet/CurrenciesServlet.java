@@ -13,6 +13,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
+import static jakarta.servlet.http.HttpServletResponse.SC_CREATED;
+import static jakarta.servlet.http.HttpServletResponse.SC_OK;
+
 @WebServlet(name = "currenciesServlet", value = "/currencies")
 public class CurrenciesServlet extends HttpServlet {
     private CurrencyService currencyService = new CurrencyService();
@@ -21,7 +24,7 @@ public class CurrenciesServlet extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         List<Currency> currencyList = currencyService.getCurrencyAll();
 
-        JsonResponseWriter.writeJsonResponse(response, currencyList, 200);
+        JsonResponseWriter.writeJsonResponse(response, currencyList, SC_OK);
     }
 
     @Override
@@ -33,12 +36,12 @@ public class CurrenciesServlet extends HttpServlet {
         if (code == null || code.isBlank() ||
                 name == null || name.isBlank() ||
                 sign == null || sign.isBlank()) {
-            throw new InvalidParameterException("Обязательные поля не заполнены");
+            throw new InvalidParameterException("Required fields are not filled in");
         }
 
         Currency currency = new Currency(code, name, sign);
         currency = currencyService.addCurrency(currency);
 
-        JsonResponseWriter.writeJsonResponse(response, currency, 201);
+        JsonResponseWriter.writeJsonResponse(response, currency, SC_CREATED);
     }
 }

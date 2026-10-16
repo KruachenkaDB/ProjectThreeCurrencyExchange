@@ -12,6 +12,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
 
+import static jakarta.servlet.http.HttpServletResponse.SC_OK;
+
 @WebServlet(name = "currencyServlet", value = "/currency/*")
 public class CurrencyServlet extends HttpServlet {
     private CurrencyService currencyService = new CurrencyService();
@@ -25,11 +27,11 @@ public class CurrencyServlet extends HttpServlet {
         String result = uri.substring(position + 1);
 
         if (result.isBlank()) {
-            throw new InvalidParameterException("Не указан код валюты");
+            throw new InvalidParameterException("Currency code is not specified");
         }
 
         Currency currency = currencyService.getCurrencyByCode(result);
 
-        JsonResponseWriter.writeJsonResponse(response, currency, 200);
+        JsonResponseWriter.writeJsonResponse(response, currency, SC_OK);
     }
 }

@@ -14,6 +14,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.math.BigDecimal;
 
+import static jakarta.servlet.http.HttpServletResponse.SC_OK;
+
 @WebServlet(name = "exchangeRateServlet", value = "/exchangeRate/*")
 public class ExchangeRateServlet extends HttpServlet {
     private ExchangeRateService exchangeRateService = new ExchangeRateService();
@@ -26,7 +28,7 @@ public class ExchangeRateServlet extends HttpServlet {
         String str = uri.substring(position + 1);
 
         if (str.length() != 6) {
-            throw new InvalidParameterException("Некорректно указаны коды валют");
+            throw new InvalidParameterException("Invalid currency codes");
         }
 
         String baseCode = str.substring(0, 3);
@@ -34,7 +36,7 @@ public class ExchangeRateServlet extends HttpServlet {
 
         ExchangeRate exchangeRate = exchangeRateService.getExchangeRateByCodes(baseCode, targetCode);
 
-        JsonResponseWriter.writeJsonResponse(response, exchangeRate, 200);
+        JsonResponseWriter.writeJsonResponse(response, exchangeRate, SC_OK);
     }
 
     protected void doPatch(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -44,7 +46,7 @@ public class ExchangeRateServlet extends HttpServlet {
         String str = uri.substring(position + 1);
 
         if (str.length() != 6) {
-            throw new InvalidParameterException("Некорректно указаны коды валют");
+            throw new InvalidParameterException("Invalid currency codes");
         }
 
         String baseCode = str.substring(0, 3);
@@ -54,7 +56,7 @@ public class ExchangeRateServlet extends HttpServlet {
         String rateStr = reader.readLine();
 
         if (rateStr == null || rateStr.isBlank()) {
-            throw new InvalidParameterException("Обязательное поле не заполнено");
+            throw new InvalidParameterException("Required field is not filled in");
         }
         position = rateStr.lastIndexOf("=");
         rateStr = rateStr.substring(position + 1);
@@ -63,12 +65,12 @@ public class ExchangeRateServlet extends HttpServlet {
         try {
             rate = new BigDecimal(rateStr);
         } catch (NumberFormatException e) {
-            throw new InvalidParameterException("Некорректное значение rate");
+            throw new InvalidParameterException("Invalid rate value");
         }
 
         ExchangeRate exchangeRate = exchangeRateService.updateExchangeRate(baseCode, targetCode, rate);
 
-        JsonResponseWriter.writeJsonResponse(response, exchangeRate, 200);
+        JsonResponseWriter.writeJsonResponse(response, exchangeRate, SC_OK);
     }
     //    http://localhost:8080/ProjectThreeCurrencyExchange_war_exploded/exchangeRate/USDRUB
 
