@@ -1,5 +1,8 @@
 package com.projectthreecurrencyexchange.dao;
 
+import com.projectthreecurrencyexchange.exception.DatabaseOperationException;
+import com.projectthreecurrencyexchange.exception.EntityExistsException;
+import com.projectthreecurrencyexchange.exception.NotFoundException;
 import com.projectthreecurrencyexchange.model.Currency;
 
 import java.sql.*;
@@ -7,48 +10,54 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CurrencyDao {
+    private static final String URL = "jdbc:sqlite:C:\\Users\\krua_\\Desktop\\ProjectThreeCurrencyExchange\\identifier.sqlite";
 
-    // в методах повторяющийся код, может вынести саму логику отдельно
-    public Currency findByCode(String code) {
-        String url = "jdbc:sqlite:C:\\Users\\krua_\\Desktop\\ProjectThreeCurrencyExchange\\identifier.sqlite";
-
+    public CurrencyDao() {
         try {
             Class.forName("org.sqlite.JDBC");
         } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
+            throw new DatabaseOperationException(
+                    "Java не может найти класс драйвера", e
+            );
         }
-        try (Connection connection = DriverManager.getConnection(url)) {
-            PreparedStatement preparedStatement = connection.prepareStatement("SELECT id, code, name, sign FROM currencies WHERE code = ?");
-            preparedStatement.setString(1, code);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                int id = resultSet.getInt("id");
-                String codeFromDb = resultSet.getString("code");
-                String name = resultSet.getString("name");
-                String sign = resultSet.getString("sign");
+    }
 
-                return new Currency(id, codeFromDb, name, sign);
+    public Currency findByCode(String code) {
+        final String query = "SELECT id, code, name, sign " +
+                "FROM currencies WHERE code = ?";
+
+        try (Connection connection = DriverManager.getConnection(URL);
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+
+            preparedStatement.setString(1, code);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    int id = resultSet.getInt("id");
+                    String codeFromDb = resultSet.getString("code");
+                    String name = resultSet.getString("name");
+                    String sign = resultSet.getString("sign");
+
+                    return new Currency(id, codeFromDb, name, sign);
+                }
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DatabaseOperationException("Проблема подключения к БД или выполнением SQL-запроса", e);
         }
 
-        return null;
+        throw new NotFoundException("Валюта не найдена");
     }
 
     public List<Currency> findAll() {
-        String url = "jdbc:sqlite:C:\\Users\\krua_\\Desktop\\ProjectThreeCurrencyExchange\\identifier.sqlite";
+        final String query = "SELECT id, code, name, sign " +
+                "FROM currencies";
 
-        try {
-            Class.forName("org.sqlite.JDBC");
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-        try (Connection connection = DriverManager.getConnection(url)) {
-            PreparedStatement preparedStatement = connection.prepareStatement("SELECT id, code, name, sign FROM currencies");
-            ResultSet resultSet = preparedStatement.executeQuery();
+        List<Currency> currencyList = new ArrayList<>();
 
-            List<Currency> currencyList = new ArrayList<>();
+        try (Connection connection = DriverManager.getConnection(URL);
+             PreparedStatement preparedStatement = connection.prepareStatement(query);
+             ResultSet resultSet = preparedStatement.executeQuery()) {
+
             while (resultSet.next()) {
                 int id = resultSet.getInt("id");
                 String codeFromDb = resultSet.getString("code");
@@ -59,37 +68,56 @@ public class CurrencyDao {
             }
             return currencyList;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DatabaseOperationException("Проблема подключения к БД или выполнением SQL-запроса", e);
         }
     }
 
     public Currency add(Currency currency) {
-        String url = "jdbc:sqlite:C:\\Users\\krua_\\Desktop\\ProjectThreeCurrencyExchange\\identifier.sqlite";
+        final String query = "INSERT INTO currencies (code, name, sign) " +
+                "VALUES (?, ?, ?)";
 
-        try {
-            Class.forName("org.sqlite.JDBC");
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+        try (Connection connection = DriverManager.getConnection(URL);
+             PreparedStatement preparedStatement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
 
-        try (Connection connection = DriverManager.getConnection(url)) {
-            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO currencies (code, name, sign) VALUES (?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
             preparedStatement.setString(1, currency.getCode());
             preparedStatement.setString(2, currency.getName());
             preparedStatement.setString(3, currency.getSign());
             preparedStatement.executeUpdate();
 
-            ResultSet resultSet = preparedStatement.getGeneratedKeys();
-            if (resultSet.next()) {
-                int id = resultSet.getInt(1);
+            try (ResultSet resultSet = preparedStatement.getGeneratedKeys()) {
+                if (resultSet.next()) {
+                    int id = resultSet.getInt(1);
 
-                return new Currency(id, currency.getCode(), currency.getName(), currency.getSign());
-            } else {
-                //тут позже разобраться
-                return null;
+                    return new Currency(id, currency.getCode(), currency.getName(), currency.getSign());
+                }
+            } catch (SQLException e) {
+                throw new DatabaseOperationException("Не удалось получить ID созданной валюты", e);
+            }
+
+        } catch (SQLException e) {
+            throw new DatabaseOperationException("Проблема подключения к БД или выполнением SQL-запроса", e);
+        }
+
+        throw new DatabaseOperationException("Проблема подключения к БД или выполнением SQL-запроса");
+    }
+
+    public boolean existsByCode(String code) {
+        final String query = "SELECT 1 " +
+                "FROM currencies WHERE code = ?";
+
+        try (Connection connection = DriverManager.getConnection(URL);
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+
+            preparedStatement.setString(1, code);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return true;
+                }
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DatabaseOperationException("Проблема подключения к БД или выполнением SQL-запроса", e);
         }
+        return false;
     }
 }

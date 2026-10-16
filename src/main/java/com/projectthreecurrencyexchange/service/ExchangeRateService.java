@@ -1,6 +1,7 @@
 package com.projectthreecurrencyexchange.service;
 import com.projectthreecurrencyexchange.dao.CurrencyDao;
 import com.projectthreecurrencyexchange.dao.ExchangeRateDao;
+import com.projectthreecurrencyexchange.exception.InvalidParameterException;
 import com.projectthreecurrencyexchange.model.Currency;
 import com.projectthreecurrencyexchange.model.ExchangeRate;
 
@@ -11,33 +12,32 @@ public class ExchangeRateService {
     private ExchangeRateDao exchangeRateDao = new ExchangeRateDao();
     private CurrencyDao currencyDao = new CurrencyDao();
 
-    public List<ExchangeRate> getAllRate() {
+    public List<ExchangeRate> getAllExchangeRates() {
         return exchangeRateDao.findAllRate();
     }
 
-    //подумать над названием метода
-    public ExchangeRate getCurrencyByCodes(String baseCode, String targetCode) {
+    public ExchangeRate getExchangeRateByCodes(String baseCode, String targetCode) {
         return exchangeRateDao.findByCodes(baseCode, targetCode);
     }
 
     public ExchangeRate addExchangeRate(String baseCurrencyCode, String targetCurrencyCode, BigDecimal rate) {
+        if ((rate.compareTo(BigDecimal.ZERO) <= 0)) {
+            throw new InvalidParameterException("Переменная rate должна быть больше нуля");
+        }
+
         Currency baseCurrency = currencyDao.findByCode(baseCurrencyCode);
         Currency targetCurrency = currencyDao.findByCode(targetCurrencyCode);
 
-        if ((baseCurrency != null) && (targetCurrency != null)) {
-            return exchangeRateDao.add(new ExchangeRate(baseCurrency, targetCurrency, rate));
-        }
-
-        return null;
+        return exchangeRateDao.add(new ExchangeRate(baseCurrency, targetCurrency, rate));
     }
 
     public ExchangeRate updateExchangeRate(String baseCurrencyCode, String targetCurrencyCode, BigDecimal rate) {
-        ExchangeRate exchangeRate = exchangeRateDao.findByCodes(baseCurrencyCode, targetCurrencyCode);
-        if (exchangeRate != null) {
-            exchangeRate.setRate(rate);
-            return exchangeRateDao.update(exchangeRate);
+        if ((rate.compareTo(BigDecimal.ZERO) <= 0)) {
+            throw new InvalidParameterException("Переменная rate должна быть больше нуля");
         }
 
-        return null;
+        ExchangeRate exchangeRate = exchangeRateDao.findByCodes(baseCurrencyCode, targetCurrencyCode);
+        exchangeRate.setRate(rate);
+        return exchangeRateDao.update(exchangeRate);
     }
 }
