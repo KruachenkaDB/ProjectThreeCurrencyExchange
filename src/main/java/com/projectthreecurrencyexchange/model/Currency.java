@@ -6,7 +6,6 @@ public class Currency {
     private String name;
     private String sign;
 
-    //убрать? все равно при создании в БД у нас появляется id
     public Currency(int id, String code, String name, String sign) {
         this.id = id;
         this.code = code;

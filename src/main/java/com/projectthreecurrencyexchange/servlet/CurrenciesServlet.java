@@ -16,13 +16,13 @@ import java.util.List;
 import static jakarta.servlet.http.HttpServletResponse.SC_CREATED;
 import static jakarta.servlet.http.HttpServletResponse.SC_OK;
 
-@WebServlet(name = "currenciesServlet", value = "/currencies")
+@WebServlet(value = "/currencies")
 public class CurrenciesServlet extends HttpServlet {
-    private CurrencyService currencyService = new CurrencyService();
+    private final CurrencyService currencyService = new CurrencyService();
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        List<Currency> currencyList = currencyService.getCurrencyAll();
+        List<Currency> currencyList = currencyService.getAllCurrencies();
 
         JsonResponseWriter.writeJsonResponse(response, currencyList, SC_OK);
     }
@@ -37,6 +37,10 @@ public class CurrenciesServlet extends HttpServlet {
                 name == null || name.isBlank() ||
                 sign == null || sign.isBlank()) {
             throw new InvalidParameterException("Required fields are not filled in");
+        }
+
+        if (sign.length() > 3) {
+            throw new InvalidParameterException("The length of the sign variable is more than three characters");
         }
 
         Currency currency = new Currency(code, name, sign);

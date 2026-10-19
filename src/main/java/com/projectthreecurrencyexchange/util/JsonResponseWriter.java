@@ -20,5 +20,4 @@ public class JsonResponseWriter {
             throw new ServletException("Не удалось сформировать JSON-ответ", ex);
         }
     }
-//    позже стоит разделить обработку ошибок сериализации и записи ответа.
 }

@@ -11,18 +11,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ExchangeRateDao {
-    public ExchangeRateDao() {
-        try {
-            Class.forName("org.sqlite.JDBC");
-        } catch (ClassNotFoundException e) {
-            throw new DatabaseOperationException(
-                    "SQLite JDBC driver not found", e
-            );
-        }
-    }
-
-    public List<ExchangeRate> findAllRate() {
+public class ExchangeRateDao extends AbstractDao{
+    public List<ExchangeRate> findAll() {
         final String query = "SELECT t1.id as baseId, " +
                 "t2.id as exchangeId, " +
                 "t1.code as baseCode, " +
@@ -169,5 +159,28 @@ public class ExchangeRateDao {
         }
 
         throw new NotFoundException("Currency pair is missing from the database");
+    }
+
+    public boolean existsByCurrencyPair(int baseCurrencyId, int targetCurrencyId) {
+        final String query = "SELECT 1 " +
+                "FROM exchangeRates " +
+                "WHERE baseCurrencyId = ? " +
+                "AND targetCurrencyId = ?";
+
+        try (Connection connection = DriverManager.getConnection(DatabaseConfig.URL);
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+
+            preparedStatement.setInt(1, baseCurrencyId);
+            preparedStatement.setInt(2, targetCurrencyId);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return true;
+                }
+            }
+        } catch (SQLException e) {
+            throw new DatabaseOperationException("Database connection or SQL query execution error", e);
+        }
+        return false;
     }
 }

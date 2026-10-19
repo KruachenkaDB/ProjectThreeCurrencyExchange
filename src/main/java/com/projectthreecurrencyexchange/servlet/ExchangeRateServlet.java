@@ -16,9 +16,9 @@ import java.math.BigDecimal;
 
 import static jakarta.servlet.http.HttpServletResponse.SC_OK;
 
-@WebServlet(name = "exchangeRateServlet", value = "/exchangeRate/*")
+@WebServlet(value = "/exchangeRate/*")
 public class ExchangeRateServlet extends HttpServlet {
-    private ExchangeRateService exchangeRateService = new ExchangeRateService();
+    private final ExchangeRateService exchangeRateService = new ExchangeRateService();
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -34,7 +34,7 @@ public class ExchangeRateServlet extends HttpServlet {
         String baseCode = str.substring(0, 3);
         String targetCode = str.substring(3, 6);
 
-        ExchangeRate exchangeRate = exchangeRateService.getExchangeRateByCodes(baseCode, targetCode);
+        ExchangeRate exchangeRate = exchangeRateService.getExchangeRateByCurrencyCodes(baseCode, targetCode);
 
         JsonResponseWriter.writeJsonResponse(response, exchangeRate, SC_OK);
     }
@@ -72,7 +72,6 @@ public class ExchangeRateServlet extends HttpServlet {
 
         JsonResponseWriter.writeJsonResponse(response, exchangeRate, SC_OK);
     }
-    //    http://localhost:8080/ProjectThreeCurrencyExchange_war_exploded/exchangeRate/USDRUB
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {

@@ -10,18 +10,7 @@ import java.util.List;
 
 import com.projectthreecurrencyexchange.config.DatabaseConfig;
 
-public class CurrencyDao {
-    public CurrencyDao() {
-        //может перенсти в конфиг отже
-        try {
-            Class.forName("org.sqlite.JDBC");
-        } catch (ClassNotFoundException e) {
-            throw new DatabaseOperationException(
-                    "SQLite JDBC driver not found", e
-            );
-        }
-    }
-
+public class CurrencyDao extends AbstractDao{
     public Currency findByCode(String code) {
         final String query = "SELECT id, code, name, sign " +
                 "FROM currencies WHERE code = ?";

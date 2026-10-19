@@ -10,15 +10,14 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 public class ExchangeService {
-    private ExchangeRateDao exchangeRateDao = new ExchangeRateDao();
+    private final ExchangeRateDao exchangeRateDao = new ExchangeRateDao();
 
     public Exchange calculateExchangeAmount(String from, String to, BigDecimal amount) {
-        if ((amount.compareTo(BigDecimal.ZERO) <= 0)) {
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new InvalidParameterException("The amount variable must be greater than zero");
         }
 
         ExchangeRate exchangeRate = null;
-        //#1
         try {
             exchangeRate = exchangeRateDao.findByCodes(from, to);
             BigDecimal convertedAmount = (exchangeRate.getRate().multiply(amount));
@@ -27,9 +26,9 @@ public class ExchangeService {
             return new Exchange(exchangeRate.getBaseCurrency(), exchangeRate.getTargetCurrency(), exchangeRate.getRate(), amount, convertedAmount);
 
         } catch (NotFoundException ignored) {
+//            #1 если прямого курса нет, переходим к поиску обратного
         }
 
-        //#2
         try {
             exchangeRate = exchangeRateDao.findByCodes(to, from);
             BigDecimal rate = BigDecimal.ONE.divide(exchangeRate.getRate(), 4, RoundingMode.HALF_UP);
@@ -38,9 +37,9 @@ public class ExchangeService {
 
             return new Exchange(exchangeRate.getTargetCurrency(), exchangeRate.getBaseCurrency(), rate, amount, convertedAmount);
         } catch (NotFoundException ignored) {
+//            #2 если обратного курса нет, переходим к расчёту через USD
         }
 
-        //#3
         try {
             ExchangeRate exchangeRateTo = exchangeRateDao.findByCodes("USD", to);
             ExchangeRate exchangeRateFrom = exchangeRateDao.findByCodes("USD", from);
@@ -52,9 +51,10 @@ public class ExchangeService {
 
                 return new Exchange(exchangeRateFrom.getTargetCurrency(), exchangeRateTo.getTargetCurrency(), rate, amount, convertedAmount);
             }
-        } catch (NotFoundException ignored) {}
+        } catch (NotFoundException ignored) {
+//            #3 если нужных курсов через USD нет, в конце выбрасываем общее исключение NotFoundException
+        }
 
         throw new NotFoundException("Exchange rate not found");
     }
-//    При последующем тестировании проверить, что JSON содержит два знака после запятой, например 125.60, а не 125.6
 }

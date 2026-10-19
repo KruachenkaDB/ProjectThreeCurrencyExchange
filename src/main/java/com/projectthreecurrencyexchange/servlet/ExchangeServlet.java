@@ -15,9 +15,9 @@ import java.math.BigDecimal;
 
 import static jakarta.servlet.http.HttpServletResponse.SC_OK;
 
-@WebServlet(name = "exchangeServlet", value = "/exchange")
+@WebServlet(value = "/exchange")
 public class ExchangeServlet extends HttpServlet {
-    private ExchangeService exchangeService = new ExchangeService();
+    private final ExchangeService exchangeService = new ExchangeService();
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

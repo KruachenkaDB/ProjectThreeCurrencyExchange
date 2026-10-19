@@ -4,8 +4,6 @@ import com.projectthreecurrencyexchange.exception.InvalidParameterException;
 import com.projectthreecurrencyexchange.model.ExchangeRate;
 import com.projectthreecurrencyexchange.service.ExchangeRateService;
 import com.projectthreecurrencyexchange.util.JsonResponseWriter;
-import jakarta.json.bind.Jsonb;
-import jakarta.json.bind.JsonbBuilder;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -14,21 +12,21 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.util.List;
 
 import static jakarta.servlet.http.HttpServletResponse.SC_CREATED;
+import static jakarta.servlet.http.HttpServletResponse.SC_OK;
 
-@WebServlet(name = "exchangeRatesServlet", value = "/exchangeRates")
+@WebServlet(value = "/exchangeRates")
 public class ExchangeRatesServlet extends HttpServlet {
-    private ExchangeRateService exchangeRateService = new ExchangeRateService();
+    private final ExchangeRateService exchangeRateService = new ExchangeRateService();
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         List<ExchangeRate> exchangeRateList = exchangeRateService.getAllExchangeRates();
 
-        JsonResponseWriter.writeJsonResponse(response, exchangeRateList, 200);
+        JsonResponseWriter.writeJsonResponse(response, exchangeRateList, SC_OK);
     }
 
     @Override
@@ -39,7 +37,7 @@ public class ExchangeRatesServlet extends HttpServlet {
 
         if (baseCode == null || baseCode.isBlank() ||
                 targetCode == null || targetCode.isBlank() ||
-                rateStr == null || rateStr.isBlank() ) {
+                rateStr == null || rateStr.isBlank()) {
             throw new InvalidParameterException("Required fields are not filled in");
         }
 
@@ -54,6 +52,4 @@ public class ExchangeRatesServlet extends HttpServlet {
 
         JsonResponseWriter.writeJsonResponse(response, exchangeRate, SC_CREATED);
     }
-    //url для проверки в постман
-    // http://localhost:8080/ProjectThreeCurrencyExchange_war_exploded/exchangeRates
 }

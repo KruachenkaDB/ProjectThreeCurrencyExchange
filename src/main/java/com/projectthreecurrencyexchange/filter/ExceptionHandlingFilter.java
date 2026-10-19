@@ -17,10 +17,9 @@ import java.io.PrintWriter;
 import static jakarta.servlet.http.HttpServletResponse.*;
 
 @WebFilter(value = {
-       "/currencies", "/currency/*", "/exchangeRate/*", "/exchangeRates", "/exchange"
+        "/currencies", "/currency/*", "/exchangeRate/*", "/exchangeRates", "/exchange"
 })
 public class ExceptionHandlingFilter implements Filter {
-    //повт. строка
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         try {
@@ -37,9 +36,12 @@ public class ExceptionHandlingFilter implements Filter {
         } catch (DatabaseOperationException e) {
             HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
             writeResponse(httpResponse, SC_INTERNAL_SERVER_ERROR, e);
+        } catch (RuntimeException e) {
+//            поймает неожиданные ошибки
+            HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
+            writeResponse(httpResponse, SC_INTERNAL_SERVER_ERROR, e);
         }
     }
-//    ошибки сериализации как внутренней ошибки сервера со статусом 500
 
     private void writeResponse(HttpServletResponse httpResponse, int errorCode, RuntimeException e) throws IOException, ServletException {
         try (Jsonb jsonb = JsonbBuilder.create()) {
