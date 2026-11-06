@@ -1,3 +1,6 @@
+# Ревью проекта: 
+https://github.com/reviewer-project/currency-exchange-review/blob/main/rv1-KruachenkaDB.md
+
 # Currency Exchange Service
 
 REST API для работы со справочником валют и обменными курсами. Приложение позволяет получать и добавлять валюты, просматривать и изменять обменные курсы, а также конвертировать денежные суммы между валютами.
